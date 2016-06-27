@@ -2,6 +2,7 @@ package navalaction;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.util.Collection;
 
 /**
@@ -20,18 +21,25 @@ public class JPortMapComponent extends JComponent {
     protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
         final Graphics2D g2 = (Graphics2D) g;
-        //g2.scale(0.001, 0.001);
-        g2.scale(0.0008, 0.0008);
-        g2.translate(1000000, 1000000);
-        g2.setColor(Color.BLACK);
-        //g2.drawLine(0, 0, 10000, 10000);
+        AffineTransform tx = AffineTransform.getScaleInstance(-0.0008, 0.0008);
+        tx.concatenate(AffineTransform.getTranslateInstance(-1000000, 1000000));
+        g2.transform(tx);
+        //g2.setColor(Color.BLACK);
         for (final Port port : ports) {
             //System.out.println(port);
-            g2.fillOval((int) -port.x -3750, (int) port.z - 3750, 7500, 7500);
+            float h = ((port.conquestFlagTimeSlot + 14) % 24) / 20.0f;
+            System.out.println(h);
+            g2.setColor(Color.getHSBColor(h, 1, 0.5f));
+            g2.fill(port.getSectorShape());
+            g2.setColor(Color.BLACK);
+            g2.draw(port.getSectorShape());
+            g2.fillOval((int) port.x -3750, (int) port.z - 3750, 7500, 7500);
         }
+        /*
         mash.forEach(l -> {
             //System.out.println(l);
-            g2.drawLine((int) -l.getX1(), (int) l.getY1(), (int) -l.getX2(), (int) l.getY2());
+            g2.drawLine((int) l.getX1(), (int) l.getY1(), (int) l.getX2(), (int) l.getY2());
         } );
+        */
     }
 }

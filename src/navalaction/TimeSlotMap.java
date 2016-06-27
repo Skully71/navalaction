@@ -7,6 +7,7 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.swing.*;
+import java.awt.geom.Point2D;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -33,12 +34,20 @@ public class TimeSlotMap {
         final List<MetaLine> mash = new ArrayList<>();
         final List<Port> portValues = new ArrayList(ports.values());
         for (int i = 0; i < portValues.size(); i++) {
+            final Port p1 = portValues.get(i);
             for (int j = i; j < portValues.size(); j++) {
-                final Port p1 = portValues.get(i);
                 final Port p2 = portValues.get(j);
                 final MetaLine line = new MetaLine(p1, p2);
                 mash.add(line);
             }
+            // west end
+            mash.add(new MetaLine(p1, -1000000, p1.z));
+            // north end
+            mash.add(new MetaLine(p1, p1.x, 1000000));
+            // east end
+            mash.add(new MetaLine(p1, 1000000, p1.z));
+            // south end
+            mash.add(new MetaLine(p1, p1.x, -1000000));
         }
         /*
         for (final Port p1 : ports.values()) {
@@ -68,15 +77,17 @@ public class TimeSlotMap {
                     //System.out.println(l1 + " " + l2 + " " + l1.intersection(l2));
 //                    if ((l1.p1.name.equals("Somerset") || l1.p2.name.equals("Somerset")))
 //                        System.out.println(l1 + " " + l2 + " " + l1.intersection(l2));
-                    if ((l1.p1.name.equals("Somerset") || l1.p2.name.equals("Somerset")) &&
-                            (l1.p2.name.equals("North Inlet") || l1.p2.name.equals("North Inlet"))) {
-                        System.out.println("l1=" + l1 + "\n  l2=" + l2 + "\n  i=" + l1.intersection(l2));
-                        System.out.println("  " + l1.length() + " " + l2.length());
-                    }
-                    if ((l1.p1.name.equals("Barranquilla") || l1.p2.name.equals("Barranquilla")) &&
-                            (l1.p2.name.equals("Bugle Cay") || l1.p2.name.equals("Bugle Cay"))) {
-                        System.out.println("l1=" + l1 + "\n  l2=" + l2 + "\n  i=" + l1.intersection(l2));
-                        System.out.println("  " + l1.length() + " " + l2.length());
+                    if (l1.p2 != null) {
+                        if ((l1.p1.name.equals("Somerset") || l1.p2.name.equals("Somerset")) &&
+                                (l1.p2.name.equals("North Inlet") || l1.p2.name.equals("North Inlet"))) {
+                            System.out.println("l1=" + l1 + "\n  l2=" + l2 + "\n  i=" + l1.intersection(l2));
+                            System.out.println("  " + l1.length() + " " + l2.length());
+                        }
+                        if ((l1.p1.name.equals("Barranquilla") || l1.p2.name.equals("Barranquilla")) &&
+                                (l1.p2.name.equals("Bugle Cay") || l1.p2.name.equals("Bugle Cay"))) {
+                            System.out.println("l1=" + l1 + "\n  l2=" + l2 + "\n  i=" + l1.intersection(l2));
+                            System.out.println("  " + l1.length() + " " + l2.length());
+                        }
                     }
                     l1.markRedundant();
                     //l2.markRedundant();
@@ -108,6 +119,13 @@ public class TimeSlotMap {
         }
 
         mash.removeIf(l -> { return l.isRedundant(); });
+
+        mash.forEach(l -> {
+            final Point2D.Double p = new Point2D.Double((l.x1 + l.x2) / 2, (l.y1 + l.y2) / 2);
+            l.p1.add(p);
+            if (l.p2 != null) l.p2.add(p);
+        });
+
         final JFrame frame = new JFrame("Time Slot Map");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(1024, 768);

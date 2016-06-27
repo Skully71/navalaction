@@ -17,6 +17,12 @@ public class MetaLine extends Line2D.Double {
         this.p2 = p2;
     }
 
+    public MetaLine(final Port p1, final double x2, final double y2) {
+        super(p1.x, p1.z, x2, y2);
+        this.p1 = p1;
+        this.p2 = null;
+    }
+
     public Point2D.Double intersection(final Line2D.Double other) {
         /*
 0021    int d = (x1-x2)*(y3-y4) - (y1-y2)*(x3-x4);

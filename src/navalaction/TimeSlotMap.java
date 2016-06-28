@@ -121,9 +121,9 @@ public class TimeSlotMap {
         mash.removeIf(l -> { return l.isRedundant(); });
 
         mash.forEach(l -> {
-            final Point2D.Double p = new Point2D.Double((l.x1 + l.x2) / 2, (l.y1 + l.y2) / 2);
-            l.p1.add(p);
-            if (l.p2 != null) l.p2.add(p);
+            l.p1.add(l.getP2());
+            if (l.p2 != null)
+                l.p2.add(l.getP1());
         });
 
         final JFrame frame = new JFrame("Time Slot Map");

@@ -9,13 +9,15 @@ import java.util.TreeSet;
  *
  */
 public class Port {
+    public final int id;
     public final String name;
     public final double x, y, z;
     public final int conquestFlagTimeSlot;
     private final SortedSet<Point2D> destinations;
     private Shape sectorShape;
 
-    public Port(final String name, final double x, final double y, final double z, final int conquestFlagTimeSlot) {
+    public Port(final int id, final String name, final double x, final double y, final double z, final int conquestFlagTimeSlot) {
+        this.id = id;
         this.name = name;
 
         this.x = x;
@@ -54,7 +56,8 @@ public class Port {
     @Override
     public String toString() {
         return "Port{" +
-                "name='" + name + '\'' +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 ", x=" + x +
                 ", y=" + y +
                 ", z=" + z +

@@ -31,6 +31,7 @@ public class JsonRecipeShipTemplateBuilder extends JsonItemTemplateBuilder {
             fullRequirements.add(JsonRequirementBuilder.create(r));
         });
         //System.out.println(obj.getInt("GoldRequirements")); // should be 0
-        return new RecipeShipTemplate(obj.getInt("Id"), obj.getString("Name"), ItemTemplateType.find(obj.getString("__type")), woodTypeDescs, laborPrice, fullRequirements);
+        // TODO: Results
+        return new RecipeShipTemplate(obj.getInt("Id"), obj.getString("Name"), ItemTemplateType.find(obj.getString("__type")), woodTypeDescs, laborPrice, fullRequirements, obj.getInt("GoldRequirements"), null);
     }
 }

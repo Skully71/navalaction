@@ -60,7 +60,7 @@ public class JsonItemTemplateBuilder implements Function<JsonObject, ItemTemplat
                 //System.out.println(s);
                 final ItemTemplate itemTemplate = create(s);
                 // 306 == Constitution Blueprint
-//                if (itemTemplate.id == 306)
+//                if (itemTemplate.type == ItemTemplateType.RECIPE_RESOURCE)
 //                    System.out.println(s);
                 itemTemplates.put(itemTemplate.id, itemTemplate);
 //                if (itemTemplate.type == ItemTemplateType.LOOT_TABLE_ITEM && itemTemplate.name.indexOf("Fishing") != -1) {

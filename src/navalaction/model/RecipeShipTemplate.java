@@ -7,15 +7,11 @@ import java.util.Map;
 /**
  *
  */
-public class RecipeShipTemplate extends ItemTemplate {
+public class RecipeShipTemplate extends AbstractRecipeTemplate {
     public final Map<WoodType, WoodTypeDesc> woodTypeDescs;
-    public final int laborPrice;
-    public final Collection<Requirement> fullRequirements;
 
-    public RecipeShipTemplate(final int id, final String name, final ItemTemplateType type, final Map<WoodType, WoodTypeDesc> woodTypeDescs, final int laborPrice, final Collection<Requirement> fullRequirements) {
-        super(id, name, type, null);
+    public RecipeShipTemplate(final int id, final String name, final ItemTemplateType type, final Map<WoodType, WoodTypeDesc> woodTypeDescs, final int laborPrice, final Collection<Requirement> fullRequirements, final int goldRequirements, final Map<Integer, Requirement> results) {
+        super(id, name, type, laborPrice, fullRequirements, goldRequirements, results);
         this.woodTypeDescs = Collections.unmodifiableMap(woodTypeDescs);
-        this.laborPrice = laborPrice;
-        this.fullRequirements = Collections.unmodifiableCollection(fullRequirements);
     }
 }

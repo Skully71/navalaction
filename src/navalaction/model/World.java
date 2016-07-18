@@ -3,7 +3,6 @@ package navalaction.model;
 import navalaction.Port;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -24,5 +23,11 @@ public class World {
         this.shops = Collections.unmodifiableMap(shops);
         this.itemTemplatesById = Collections.unmodifiableMap(itemTemplates.values().stream().collect(Collectors.toMap(t -> t.id, t -> t)));
         this.portsByName = Collections.unmodifiableMap(ports.values().stream().collect(Collectors.toMap(p -> p.name, p -> p)));
+    }
+
+    public AbstractRecipeTemplate byResult(final int id) {
+        return itemTemplates.values().stream()
+                .filter(t -> t.type == ItemTemplateType.RECIPE || t.type == ItemTemplateType.RECIPE_RESOURCE)
+                .map(AbstractRecipeTemplate.class::cast).filter(r -> r.results.containsKey(id)).findFirst().orElseThrow(() -> new IllegalArgumentException("No recipe for #" + id + " " + itemTemplatesById.get(id).name));
     }
 }

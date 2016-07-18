@@ -12,13 +12,25 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.*;
+import java.util.function.Function;
 
 /**
  *
  */
-public class JsonItemTemplateBuilder {
+public class JsonItemTemplateBuilder implements Function<JsonObject, ItemTemplate> {
+    @Override
+    public ItemTemplate apply(final JsonObject jsonObject) {
+        //throw new RuntimeException("TODO");
+        return null;
+    }
+
     private static ItemTemplate create(final JsonObject obj) {
         // __type, Name, Id, MaxStack, ItemWeight, BasePrice, SellPrice, BuyPrice, PriceReductionAmount, ConsumedScale, NonConsumedScale, PriceTierQuantity, MaxQuantity, SortingGroup, SellableInShop, SellPriceCoefficient, ItemType, MongoID
+        for (final JsonItemTemplateBuilder builder : ServiceLoader.load(JsonItemTemplateBuilder.class)) {
+            final ItemTemplate result = builder.apply(obj);
+            if (result != null)
+                return result;
+        }
         // TODO: there is more
         Collection<Item> items = null;
         final JsonArray itemsArray = obj.getJsonArray("Items");
@@ -47,6 +59,9 @@ public class JsonItemTemplateBuilder {
             array.stream().map(JsonObject.class::cast).forEach(s -> {
                 //System.out.println(s);
                 final ItemTemplate itemTemplate = create(s);
+                // 306 == Constitution Blueprint
+//                if (itemTemplate.id == 306)
+//                    System.out.println(s);
                 itemTemplates.put(itemTemplate.id, itemTemplate);
 //                if (itemTemplate.type == ItemTemplateType.LOOT_TABLE_ITEM && itemTemplate.name.indexOf("Fishing") != -1) {
 //                    System.out.println(s.getJsonArray("Items"));
@@ -55,5 +70,4 @@ public class JsonItemTemplateBuilder {
         }
         return Collections.unmodifiableMap(itemTemplates);
     }
-
 }

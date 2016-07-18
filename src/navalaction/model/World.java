@@ -15,12 +15,14 @@ public class World {
     public final Map<Integer, Port> ports;
     public final Map<Integer, Shop> shops;
 
+    public final Map<Integer, ItemTemplate> itemTemplatesById;
     public final Map<String, Port> portsByName;
 
     public World(final Map<Integer, ItemTemplate> itemTemplates, final Map<Integer, Port> ports, final Map<Integer, Shop> shops) {
         this.itemTemplates = Collections.unmodifiableMap(itemTemplates);
         this.ports = Collections.unmodifiableMap(ports);
         this.shops = Collections.unmodifiableMap(shops);
-        portsByName = Collections.unmodifiableMap(ports.values().stream().collect(Collectors.toMap(p -> p.name, p -> p)));
+        this.itemTemplatesById = Collections.unmodifiableMap(itemTemplates.values().stream().collect(Collectors.toMap(t -> t.id, t -> t)));
+        this.portsByName = Collections.unmodifiableMap(ports.values().stream().collect(Collectors.toMap(p -> p.name, p -> p)));
     }
 }

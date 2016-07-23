@@ -41,11 +41,21 @@ public class JsonItemTemplateBuilder implements Function<JsonObject, ItemTemplat
                 c.add(createItem(i));
             });
         }
+        //if (obj.getString("Name").equals("Iron Ore")) System.out.println(obj);
+        if (obj.getInt("Id") == 2) System.out.println(obj);
         return new ItemTemplate(obj.getInt("Id"), obj.getString("Name"), ItemTemplateType.find(obj.getString("__type")), items);
     }
 
     private static Item createItem(final JsonObject obj) {
         return new Item(obj.getInt("Template"), obj.getJsonNumber("Chance").doubleValue());
+    }
+
+    static int id(final JsonObject obj) {
+        return obj.getInt("Id");
+    }
+
+    static String name(final JsonObject obj) {
+        return obj.getString("Name");
     }
 
     public static Map<Integer, ItemTemplate> read(final String itemTemplatesFileName) throws IOException {
@@ -69,5 +79,9 @@ public class JsonItemTemplateBuilder implements Function<JsonObject, ItemTemplat
             });
         }
         return Collections.unmodifiableMap(itemTemplates);
+    }
+
+    static ItemTemplateType type(final JsonObject obj) {
+        return ItemTemplateType.find(obj.getString("__type"));
     }
 }

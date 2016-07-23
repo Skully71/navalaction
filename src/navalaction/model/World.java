@@ -28,6 +28,11 @@ public class World {
     public AbstractRecipeTemplate byResult(final int id) {
         return itemTemplates.values().stream()
                 .filter(t -> t.type == ItemTemplateType.RECIPE || t.type == ItemTemplateType.RECIPE_RESOURCE)
-                .map(AbstractRecipeTemplate.class::cast).filter(r -> r.results.containsKey(id)).findFirst().orElseThrow(() -> new IllegalArgumentException("No recipe for #" + id + " " + itemTemplatesById.get(id).name));
+                .map(AbstractRecipeTemplate.class::cast).filter(r -> r.results.containsKey(id)).findFirst().orElse(null);
+    }
+
+    public <T extends ItemTemplate>  T itemTemplate(final int id, Class<T> cls) {
+        System.out.println(id);
+        return cls.cast(itemTemplatesById.get(id));
     }
 }

@@ -8,8 +8,8 @@ import java.util.Map;
  */
 public enum WoodType {
     FIR(0),
-    TEAK(1),
-    OAK(2),
+    OAK(1),
+    TEAK(2),
     LIVE_OAK(3),
     ;
 

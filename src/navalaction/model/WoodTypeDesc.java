@@ -14,4 +14,12 @@ public class WoodTypeDesc {
         this.woodType = woodType;
         this.requirements = Collections.unmodifiableCollection(requirements);
     }
+
+    @Override
+    public String toString() {
+        return "WoodTypeDesc{" +
+                "woodType=" + woodType +
+                ", requirements=" + requirements +
+                '}';
+    }
 }

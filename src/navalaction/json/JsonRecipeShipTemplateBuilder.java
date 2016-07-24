@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class JsonRecipeShipTemplateBuilder extends JsonItemTemplateBuilder {
     @Override
-    public ItemTemplate apply(final JsonObject obj) {
+    public ItemTemplate<JsonObject> apply(final JsonObject obj) {
         if (!obj.getString("__type").equals("MegaChaka.Services.Items.RecipeShipTemplate, MegaChaka"))
             return null;
         // [__type, Name, Id, MaxStack, ItemWeight, BasePrice, SellPrice, BuyPrice, PriceReductionAmount, ConsumedScale, NonConsumedScale, PriceTierQuantity, MaxQuantity, SortingGroup, SellableInShop, SellPriceCoefficient, ItemType, MongoID, WoodTypeDescs, Qualities, LaborPrice, BuildingRequirements, FullRequirements, GoldRequirements, Results, CraftGroup, RequiresLevel, GivesXP, AccessibleByLevel, BreakUpRecipeSpawnChance, DisposeOnUse, CanBeUsedInPort, CanBeUsedInOpenWorld]
@@ -32,6 +32,6 @@ public class JsonRecipeShipTemplateBuilder extends JsonItemTemplateBuilder {
         });
         //System.out.println(obj.getInt("GoldRequirements")); // should be 0
         // TODO: Results
-        return new RecipeShipTemplate(obj.getInt("Id"), obj.getString("Name"), ItemTemplateType.find(obj.getString("__type")), woodTypeDescs, laborPrice, fullRequirements, obj.getInt("GoldRequirements"), null);
+        return new RecipeShipTemplate(obj.getInt("Id"), obj.getString("Name"), ItemTemplateType.find(obj.getString("__type")), woodTypeDescs, laborPrice, fullRequirements, obj.getInt("GoldRequirements"), null, obj);
     }
 }

@@ -10,7 +10,7 @@ import java.util.stream.Stream;
  * Show what you need to craft a certain recipe.
  */
 public class RecipeCrafting {
-    static CraftRequirements craftRequirements(final String prefix, final World world, final int num, final AbstractRecipeTemplate recipe, final boolean buy) {
+    static CraftRequirements craftRequirements(final String prefix, final World world, final int num, final AbstractRecipeTemplate<?> recipe, final boolean buy) {
         final CraftRequirements craftRequirements = new CraftRequirements();
         //System.out.println(recipe.name);
 
@@ -30,7 +30,7 @@ public class RecipeCrafting {
         return craftRequirements;
     }
 
-    static CraftRequirements craftShipRequirements(final World world, final RecipeShipTemplate recipe, final boolean buy) {
+    static CraftRequirements craftShipRequirements(final World world, final RecipeShipTemplate<?> recipe, final boolean buy) {
         final CraftRequirements craftRequirements = new CraftRequirements();
         System.out.println(recipe.name);
 
@@ -42,7 +42,8 @@ public class RecipeCrafting {
         System.out.println("\\ Labor: " + laborPrice);
         craftRequirements.addLaborPrice(laborPrice);
 
-        Stream.concat(recipe.woodTypeDescs.get(WoodType.LIVE_OAK).requirements.stream(), recipe.fullRequirements.stream())
+        //System.out.println(world.itemTemplatesById.get(recipe.woodTypeDescs.get(WoodType.TEAK).requirements.stream().findFirst().orElseThrow(() -> new RuntimeException("Broken")).template));
+        Stream.concat(recipe.woodTypeDescs.get(WoodType.TEAK).requirements.stream(), recipe.fullRequirements.stream())
                 .sorted((r1, r2) -> world.itemTemplatesById.get(r1.template).name.compareTo(world.itemTemplatesById.get(r2.template).name))
                 .forEach(r -> {
                     process("", world, 1, r, craftRequirements, buy);
@@ -93,7 +94,7 @@ public class RecipeCrafting {
     }
 
     static void process(final String prefix, final World world, final int num, final Requirement r, final CraftRequirements craftRequirements, final boolean buy) {
-        final ItemTemplate item = world.itemTemplatesById.get(r.template);
+        final ItemTemplate<?> item = world.itemTemplatesById.get(r.template);
         System.out.println(prefix + "\\ " + item.name + ": " + (r.amount * num));
         // TODO: lol, temporary hack
         /*
@@ -105,14 +106,14 @@ public class RecipeCrafting {
         */
         if (buy && item instanceof ResourceTemplate) {
             final int basePrice = ((ResourceTemplate) item).basePrice;
-            System.out.println(prefix + "  \\ Gold: " + (basePrice * num * r.amount));
+            System.out.println(prefix + "| \\ Gold: " + (basePrice * num * r.amount));
             craftRequirements.addGoldRequirements(basePrice * num * r.amount);
             return;
         }
-        final AbstractRecipeTemplate subRecipe = world.byResult(r.template);
+        final AbstractRecipeTemplate<?> subRecipe = world.byResult(r.template);
         if (subRecipe == null) {
             final int basePrice = ((ResourceTemplate) item).basePrice;
-            System.out.println(prefix + "  \\ Gold: " + (basePrice * num * r.amount));
+            System.out.println(prefix + "| \\ Gold: " + (basePrice * num * r.amount));
             craftRequirements.addGoldRequirements(basePrice * num * r.amount);
             return;
         }

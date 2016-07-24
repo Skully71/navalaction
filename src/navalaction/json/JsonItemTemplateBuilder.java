@@ -19,12 +19,12 @@ import java.util.function.Function;
  */
 public class JsonItemTemplateBuilder implements Function<JsonObject, ItemTemplate> {
     @Override
-    public ItemTemplate apply(final JsonObject jsonObject) {
+    public ItemTemplate<JsonObject> apply(final JsonObject jsonObject) {
         //throw new RuntimeException("TODO");
         return null;
     }
 
-    private static ItemTemplate create(final JsonObject obj) {
+    private static ItemTemplate<JsonObject> create(final JsonObject obj) {
         // __type, Name, Id, MaxStack, ItemWeight, BasePrice, SellPrice, BuyPrice, PriceReductionAmount, ConsumedScale, NonConsumedScale, PriceTierQuantity, MaxQuantity, SortingGroup, SellableInShop, SellPriceCoefficient, ItemType, MongoID
         for (final JsonItemTemplateBuilder builder : ServiceLoader.load(JsonItemTemplateBuilder.class)) {
             final ItemTemplate result = builder.apply(obj);
@@ -42,8 +42,8 @@ public class JsonItemTemplateBuilder implements Function<JsonObject, ItemTemplat
             });
         }
         //if (obj.getString("Name").equals("Iron Ore")) System.out.println(obj);
-        if (obj.getInt("Id") == 2) System.out.println(obj);
-        return new ItemTemplate(obj.getInt("Id"), obj.getString("Name"), ItemTemplateType.find(obj.getString("__type")), items);
+        //if (obj.getInt("Id") == 2) System.out.println(obj);
+        return new ItemTemplate<>(obj.getInt("Id"), obj.getString("Name"), ItemTemplateType.find(obj.getString("__type")), items, obj);
     }
 
     private static Item createItem(final JsonObject obj) {
@@ -58,8 +58,8 @@ public class JsonItemTemplateBuilder implements Function<JsonObject, ItemTemplat
         return obj.getString("Name");
     }
 
-    public static Map<Integer, ItemTemplate> read(final String itemTemplatesFileName) throws IOException {
-        final Map<Integer, ItemTemplate> itemTemplates = new HashMap<>();
+    public static Map<Integer, ItemTemplate<?>> read(final String itemTemplatesFileName) throws IOException {
+        final Map<Integer, ItemTemplate<?>> itemTemplates = new HashMap<>();
         try (final Reader r = new FileReader(itemTemplatesFileName)) {
             final char[] ignore = new char["var ItemTemplates = ".length()];
             r.read(ignore);

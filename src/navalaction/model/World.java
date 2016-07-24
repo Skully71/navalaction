@@ -14,10 +14,10 @@ public class World {
     public final Map<Integer, Port> ports;
     public final Map<Integer, Shop> shops;
 
-    public final Map<Integer, ItemTemplate> itemTemplatesById;
+    public final Map<Integer, ItemTemplate<?>> itemTemplatesById;
     public final Map<String, Port> portsByName;
 
-    public World(final Map<Integer, ItemTemplate> itemTemplates, final Map<Integer, Port> ports, final Map<Integer, Shop> shops) {
+    public World(final Map<Integer, ItemTemplate<?>> itemTemplates, final Map<Integer, Port> ports, final Map<Integer, Shop> shops) {
         this.itemTemplates = Collections.unmodifiableMap(itemTemplates);
         this.ports = Collections.unmodifiableMap(ports);
         this.shops = Collections.unmodifiableMap(shops);
@@ -32,7 +32,7 @@ public class World {
     }
 
     public <T extends ItemTemplate>  T itemTemplate(final int id, Class<T> cls) {
-        System.out.println(id);
+        //System.out.println(id);
         return cls.cast(itemTemplatesById.get(id));
     }
 }

@@ -12,11 +12,11 @@ public class JsonResourceTemplateBuilder extends JsonItemTemplateBuilder {
     //static final JsonResourceTemplateBuilder INSTANCE = new JsonResourceTemplateBuilder();
 
     @Override
-    public ItemTemplate apply(final JsonObject obj) {
+    public ItemTemplate<JsonObject> apply(final JsonObject obj) {
         if (!obj.getString("__type").equals("MegaChaka.Services.Items.ResourceTemplate, MegaChaka"))
             return null;
         //[__type, Name, Id, MaxStack, ItemWeight, BasePrice, SellPrice, BuyPrice, PriceReductionAmount, ConsumedScale, NonConsumedScale, PriceTierQuantity, MaxQuantity, SortingGroup, SellableInShop, SellPriceCoefficient, ItemType, MongoID, InitialAmount, ProductionScale, ConsumptionScale, SpawnChance, AutoFillCoefficient, ProducedByNation, ConsumedByNation, ProducedInCapitals, ProducedInTowns, ConsumedInCapitals, ConsumedInTowns]
         //System.out.println(obj);
-        return new ResourceTemplate(id(obj), name(obj), type(obj), obj.getInt("BasePrice"));
+        return new ResourceTemplate(id(obj), name(obj), type(obj), obj.getInt("BasePrice"), obj);
     }
 }

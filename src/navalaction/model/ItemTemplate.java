@@ -27,7 +27,7 @@ public class ItemTemplate<A> {
 
     @Override
     public String toString() {
-        return "ItemTemplate{" +
+        return getClass().getSimpleName() + "{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", type='" + type + '\'' +

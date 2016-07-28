@@ -1,11 +1,14 @@
 package navalaction.pricing;
 
+import com.google.gson.Gson;
 import navalaction.json.JsonWorldBuilder;
 import navalaction.model.*;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -13,13 +16,21 @@ import java.util.Comparator;
 public class Report {
     private static final double SALES_TAX = 0.05;
 
+    private static void export(final Map<Integer, Need> needs) {
+        final Gson gson = new Gson();
+        System.out.println(gson.toJson(needs));
+    }
+
     public static void main(final String[] args) throws IOException {
+        final Map<Integer, Need> needs = new HashMap<>();
         final World world = JsonWorldBuilder.create("res/20160723");
         System.out.println("+-----------------------+---------+---------+---------+");
         System.out.println("| Resource              | Price   | Tax     | Total   |");
         System.out.println("+-----------------------+---------+---------+---------+");
         world.itemTemplates.values().stream().filter(t -> t.type == ItemTemplateType.RESOURCE).sorted(Comparator.comparing(ItemTemplate::getName)).map(ResourceTemplate.class::cast).forEach(t -> {
             final double tax = salesTax(t.basePrice);
+            final Need need = new Need(t.basePrice, t.basePrice + tax, 0);
+            needs.put(t.id, need);
             System.out.format("| %-21s | %7.2f | %7.2f | %7.2f |%n", t(t.name, 21), (double) t.basePrice, tax, (double) (t.basePrice + tax));
         });
         System.out.println("+-----------------------+---------+---------+---------+");
@@ -32,9 +43,12 @@ public class Report {
             //System.out.println(t.results.values().iterator().next());
             final Requirement result = (Requirement) t.results.values().iterator().next();
             final Need need = need(world, t, 1 / (double) result.amount);
+            needs.put(result.template, need);
             System.out.format("| %-21s | %7.2f | %7.2f |  %8.2f | %8.2f |%n", t(t.name.substring(0, t.name.length() - " Blueprint".length()), 21), (double) t.goldRequirements, need.laborPrice, need.basePrice, need.priceIncTax);
         });
         System.out.println("+-----------------------+---------+---------+-----------+----------+");
+
+        export(needs);
     }
 
     private static Need need(final World world, final AbstractRecipeTemplate<?> recipe, final double num) {

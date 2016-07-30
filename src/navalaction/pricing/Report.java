@@ -16,6 +16,10 @@ import java.util.Map;
 public class Report {
     private static final double SALES_TAX = 0.05;
 
+    private static double consumptionPrice(final double basePrice) {
+        return (int) (basePrice * 1.5);
+    }
+
     private static void export(final Map<Integer, Need> needs) {
         final Gson gson = new Gson();
         System.out.println(gson.toJson(needs));
@@ -23,30 +27,30 @@ public class Report {
 
     public static void main(final String[] args) throws IOException {
         final Map<Integer, Need> needs = new HashMap<>();
-        final World world = JsonWorldBuilder.create("res/20160723");
-        System.out.println("+-----------------------+---------+---------+---------+");
-        System.out.println("| Resource              | Price   | Tax     | Total   |");
-        System.out.println("+-----------------------+---------+---------+---------+");
+        final World world = JsonWorldBuilder.create("res/20160730");
+        System.out.println("+-----------------------+---------+---------+---------+---------+---------+");
+        System.out.println("| Resource              | Price   | Tax     | Total   | Consump | C&C Cst |");
+        System.out.println("+-----------------------+---------+---------+---------+---------+---------+");
         world.itemTemplates.values().stream().filter(t -> t.type == ItemTemplateType.RESOURCE).sorted(Comparator.comparing(ItemTemplate::getName)).map(ResourceTemplate.class::cast).forEach(t -> {
             final double tax = salesTax(t.basePrice);
-            final Need need = new Need(t.basePrice, t.basePrice + tax, 0);
+            final Need need = new Need(t.basePrice, t.basePrice + tax, 0, consumptionPrice(t.basePrice), priceIncSalesTax(consumptionPrice(t.basePrice)));
             needs.put(t.id, need);
-            System.out.format("| %-21s | %7.2f | %7.2f | %7.2f |%n", t(t.name, 21), (double) t.basePrice, tax, (double) (t.basePrice + tax));
+            System.out.format("| %-21s | %7.2f | %7.2f | %7.2f | %7.2f | %7.2f |%n", t(t.name, 21), (double) t.basePrice, tax, (double) (t.basePrice + tax), need.consumptionPrice, need.consumptionIncCCostPrice);
         });
-        System.out.println("+-----------------------+---------+---------+---------+");
+        System.out.println("+-----------------------+---------+---------+---------+---------+---------+");
         System.out.println();
-        System.out.println("+-----------------------+---------+---------+-----------+----------+");
-        System.out.println("| Recipe                | Craft   | Labor   | Resources | Res+Tax  |");
-        System.out.println("+-----------------------+---------+---------+-----------+----------+");
+        System.out.println("+-----------------------+---------+---------+-----------+----------+----------+----------+");
+        System.out.println("| Recipe                | Craft   | Labor   | Resources | Res+Tax  | Consump  | C&C Cost | ");
+        System.out.println("+-----------------------+---------+---------+-----------+----------+----------+----------+");
         world.itemTemplates.values().stream().filter(t -> t.type == ItemTemplateType.RECIPE).sorted(Comparator.comparing(ItemTemplate::getName)).map(RecipeResourceTemplate.class::cast).forEach(t -> {
 //        world.itemTemplates.values().stream().filter(t -> t.type == ItemTemplateType.RECIPE && t.name.startsWith("Knees")).sorted(Comparator.comparing(ItemTemplate::getName)).map(RecipeResourceTemplate.class::cast).forEach(t -> {
             //System.out.println(t.results.values().iterator().next());
             final Requirement result = (Requirement) t.results.values().iterator().next();
             final Need need = need(world, t, 1 / (double) result.amount);
             needs.put(result.template, need);
-            System.out.format("| %-21s | %7.2f | %7.2f |  %8.2f | %8.2f |%n", t(t.name.substring(0, t.name.length() - " Blueprint".length()), 21), (double) t.goldRequirements, need.laborPrice, need.basePrice, need.priceIncTax);
+            System.out.format("| %-21s | %7.2f | %7.2f |  %8.2f | %8.2f | %8.2f | %8.2f |%n", t(t.name.substring(0, t.name.length() - " Blueprint".length()), 21), (double) t.goldRequirements, need.laborPrice, need.basePrice, need.priceIncTax, need.consumptionPrice, need.consumptionIncCCostPrice);
         });
-        System.out.println("+-----------------------+---------+---------+-----------+----------+");
+        System.out.println("+-----------------------+---------+---------+-----------+----------+----------+----------+");
 
         export(needs);
     }
@@ -54,15 +58,15 @@ public class Report {
     private static Need need(final World world, final AbstractRecipeTemplate<?> recipe, final double num) {
         // you do not pay sales tax when you craft :)
         final double price = recipe.goldRequirements * num;
-        final Need need = new Need(price, price, recipe.laborPrice * num);
+        final Need need = new Need(price, price, recipe.laborPrice * num, price, price);
         need.add(need(world, recipe.fullRequirements, num));
         // because the sales tax is added at the end
-        need.add(new Need(0, salesTax(need.priceIncTax), 0));
+        need.add(new Need(0, salesTax(need.priceIncTax), 0, 0, salesTax(need.consumptionIncCCostPrice)));
         return need;
     }
 
     private static Need need(final World world, final Collection<Requirement> requirements, final double num) {
-        final Need need = new Need(0, 0, 0);
+        final Need need = new Need(0, 0, 0, 0, 0);
         requirements.stream().forEach(r -> {
             final ItemTemplate<?> item = world.itemTemplatesById.get(r.template);
             final Need requirementNeed = need(world, r, num);
@@ -90,7 +94,11 @@ public class Report {
 
     private static Need need(final World world, final ResourceTemplate<?> resource, final double num) {
         // simply buy of port
-        return new Need(resource.basePrice * num, (resource.basePrice + salesTax(resource.basePrice)) * num, 0);
+        return new Need(resource.basePrice * num, (resource.basePrice + salesTax(resource.basePrice)) * num, 0, consumptionPrice(resource.basePrice) * num, priceIncSalesTax(consumptionPrice(resource.basePrice)) * num);
+    }
+
+    private static double priceIncSalesTax(final double price) {
+        return price + salesTax(price);
     }
 
     private static double salesTax(final double basePrice) {

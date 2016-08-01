@@ -33,6 +33,10 @@ public class World {
 
     public <T extends ItemTemplate>  T itemTemplate(final int id, Class<T> cls) {
         //System.out.println(id);
-        return cls.cast(itemTemplatesById.get(id));
+        try {
+            return cls.cast(itemTemplatesById.get(id));
+        } catch (ClassCastException e) {
+            throw (ClassCastException) new ClassCastException("Cannot cast object " + itemTemplatesById.get(id) + " to " + cls.getName()).initCause(e);
+        }
     }
 }

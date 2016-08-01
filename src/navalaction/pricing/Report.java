@@ -27,30 +27,32 @@ public class Report {
 
     public static void main(final String[] args) throws IOException {
         final Map<Integer, Need> needs = new HashMap<>();
-        final World world = JsonWorldBuilder.create("res/20160730");
-        System.out.println("+-----------------------+---------+---------+---------+---------+---------+");
-        System.out.println("| Resource              | Price   | Tax     | Total   | Consump | C&C Cst |");
-        System.out.println("+-----------------------+---------+---------+---------+---------+---------+");
+        final World world = JsonWorldBuilder.create("res/20160801");
+        System.out.println("+-----------------------+---------+---------+---------+---------+---------+---------+");
+        System.out.println("| Resource              | Weight  | Price   | Tax     | Total   | Consump | C&C Cst |");
+        System.out.println("+-----------------------+---------+---------+---------+---------+---------+---------+");
         world.itemTemplates.values().stream().filter(t -> t.type == ItemTemplateType.RESOURCE).sorted(Comparator.comparing(ItemTemplate::getName)).map(ResourceTemplate.class::cast).forEach(t -> {
             final double tax = salesTax(t.basePrice);
             final Need need = new Need(t.basePrice, t.basePrice + tax, 0, consumptionPrice(t.basePrice), priceIncSalesTax(consumptionPrice(t.basePrice)));
             needs.put(t.id, need);
-            System.out.format("| %-21s | %7.2f | %7.2f | %7.2f | %7.2f | %7.2f |%n", t(t.name, 21), (double) t.basePrice, tax, (double) (t.basePrice + tax), need.consumptionPrice, need.consumptionIncCCostPrice);
+            System.out.format("| %-21s | %7.2f | %7.2f | %7.2f | %7.2f | %7.2f | %7.2f |%n", t(t.name, 21), t.itemWeight, (double) t.basePrice, tax, t.basePrice + tax, need.consumptionPrice, need.consumptionIncCCostPrice);
         });
-        System.out.println("+-----------------------+---------+---------+---------+---------+---------+");
+        System.out.println("+-----------------------+---------+---------+---------+---------+---------+---------+");
         System.out.println();
-        System.out.println("+-----------------------+---------+---------+-----------+----------+----------+----------+");
-        System.out.println("| Recipe                | Craft   | Labor   | Resources | Res+Tax  | Consump  | C&C Cost | ");
-        System.out.println("+-----------------------+---------+---------+-----------+----------+----------+----------+");
+        System.out.println("+-----------------------+---------+---------+---------+-----------+----------+----------+----------+");
+        System.out.println("| Recipe                | Weight  | Craft   | Labor   | Resources | Res+Tax  | Consump  | C&C Cost | ");
+        System.out.println("+-----------------------+---------+---------+---------+-----------+----------+----------+----------+");
         world.itemTemplates.values().stream().filter(t -> t.type == ItemTemplateType.RECIPE).sorted(Comparator.comparing(ItemTemplate::getName)).map(RecipeResourceTemplate.class::cast).forEach(t -> {
 //        world.itemTemplates.values().stream().filter(t -> t.type == ItemTemplateType.RECIPE && t.name.startsWith("Knees")).sorted(Comparator.comparing(ItemTemplate::getName)).map(RecipeResourceTemplate.class::cast).forEach(t -> {
             //System.out.println(t.results.values().iterator().next());
+            // TODO: pick the right result :)
             final Requirement result = (Requirement) t.results.values().iterator().next();
+            final ResourceTemplate<?> item = world.itemTemplate(result.template, ResourceTemplate.class);
             final Need need = need(world, t, 1 / (double) result.amount);
             needs.put(result.template, need);
-            System.out.format("| %-21s | %7.2f | %7.2f |  %8.2f | %8.2f | %8.2f | %8.2f |%n", t(t.name.substring(0, t.name.length() - " Blueprint".length()), 21), (double) t.goldRequirements, need.laborPrice, need.basePrice, need.priceIncTax, need.consumptionPrice, need.consumptionIncCCostPrice);
+            System.out.format("| %-21s | %7.2f | %7.2f | %7.2f |  %8.2f | %8.2f | %8.2f | %8.2f |%n", t(t.name.substring(0, t.name.length() - " Blueprint".length()), 21), item.itemWeight, (double) t.goldRequirements, need.laborPrice, need.basePrice, need.priceIncTax, need.consumptionPrice, need.consumptionIncCCostPrice);
         });
-        System.out.println("+-----------------------+---------+---------+-----------+----------+----------+----------+");
+        System.out.println("+-----------------------+---------+---------+---------+-----------+----------+----------+----------+");
 
         export(needs);
     }

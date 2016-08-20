@@ -27,7 +27,7 @@ public class Report {
 
     public static void main(final String[] args) throws IOException {
         final Map<Integer, Need> needs = new HashMap<>();
-        final World world = JsonWorldBuilder.create("res/20160801");
+        final World world = JsonWorldBuilder.create("res/20160819");
         System.out.println("+-----------------------+---------+---------+---------+---------+---------+---------+");
         System.out.println("| Resource              | Weight  | Price   | Tax     | Total   | Consump | C&C Cst |");
         System.out.println("+-----------------------+---------+---------+---------+---------+---------+---------+");
@@ -53,6 +53,24 @@ public class Report {
             System.out.format("| %-21s | %7.2f | %7.2f | %7.2f |  %8.2f | %8.2f | %8.2f | %8.2f |%n", t(t.name.substring(0, t.name.length() - " Blueprint".length()), 21), item.itemWeight, (double) t.goldRequirements, need.laborPrice, need.basePrice, need.priceIncTax, need.consumptionPrice, need.consumptionIncCCostPrice);
         });
         System.out.println("+-----------------------+---------+---------+---------+-----------+----------+----------+----------+");
+        System.out.println();
+        System.out.println("+-----------------------+---------+---------+--------+------------+-----------+-----------+-----------+");
+        System.out.println("| Recipe                | Craft   | Labor   | Frames | Resources  | Res+Tax   | Consump   | C&C Cost  |");
+        System.out.println("+-----------------------+---------+---------+--------+------------+-----------+-----------+-----------+");
+        world.itemTemplates.values().stream().filter(t -> t.type == ItemTemplateType.RECIPE_SHIP).sorted(Comparator.comparing(ItemTemplate::getName)).map(RecipeShipTemplate.class::cast).forEach(t -> {
+            // check that all wood requirements are equal in amount
+            final Collection<WoodTypeDesc> woodTypeDescs = (Collection<WoodTypeDesc>) t.woodTypeDescs.values();
+            final int woodAmount = woodTypeDescs.iterator().next().requirements.iterator().next().amount;
+            assert woodTypeDescs.stream().allMatch(w -> w.requirements.iterator().next().amount == woodAmount);
+
+            final Collection<Requirement> c = t.results.values();
+            final Requirement result = c.stream().filter(r -> world.itemTemplatesById.get(r.template).type == ItemTemplateType.SHIP).findFirst().get();
+            final Need need = need(world, t, 1 / (double) result.amount);
+            needs.put(result.template, need);
+            System.out.format("| %-21s | %7.2f | %7.2f | %6d |  %9.2f | %9.2f | %9.2f | %9.2f |%n", t(t.name.substring(0, t.name.length() - " Blueprint".length()), 21), (double) t.goldRequirements, need.laborPrice, woodAmount, need.basePrice, need.priceIncTax, need.consumptionPrice, need.consumptionIncCCostPrice);
+            //System.out.println(t.woodTypeDescs);
+        });
+        System.out.println("+-----------------------+---------+---------+--------+------------+-----------+-----------+-----------+");
 
         export(needs);
     }

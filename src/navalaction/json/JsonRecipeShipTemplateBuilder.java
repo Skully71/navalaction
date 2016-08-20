@@ -31,7 +31,11 @@ public class JsonRecipeShipTemplateBuilder extends JsonItemTemplateBuilder {
             fullRequirements.add(JsonRequirementBuilder.create(r));
         });
         //System.out.println(obj.getInt("GoldRequirements")); // should be 0
-        // TODO: Results
-        return new RecipeShipTemplate(obj.getInt("Id"), obj.getString("Name"), ItemTemplateType.find(obj.getString("__type")), woodTypeDescs, laborPrice, fullRequirements, obj.getInt("GoldRequirements"), null, obj);
+        final Map<Integer, Requirement> results = new HashMap<>();
+        obj.getJsonArray("Results").stream().map(JsonObject.class::cast).forEach(r -> {
+            final Requirement result = JsonRequirementBuilder.create(r);
+            results.put(result.template, result);
+        });
+        return new RecipeShipTemplate(obj.getInt("Id"), obj.getString("Name"), ItemTemplateType.find(obj.getString("__type")), woodTypeDescs, laborPrice, fullRequirements, obj.getInt("GoldRequirements"), results, obj);
     }
 }

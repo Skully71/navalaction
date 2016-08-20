@@ -1,10 +1,5 @@
 package navalaction.model;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
 /**
  *
  */
@@ -24,6 +19,7 @@ public enum ItemTemplateType {
     LOOT_SHIPS_CONTAINER,
     LOOT_TABLE_ITEM,
     MATERIAL,
+    MEGA_SHIP_WRECK_INFO_LETTER,
     MODULE,
     MODULES_CONTAINER,
     NATION_LOOT_TABLE,
@@ -36,7 +32,9 @@ public enum ItemTemplateType {
     SHIP_LOOT_TABLE_ITEM,
     SHIP_REPAIR_ITEM,
     SHIP_REPAIR_KIT_ITEM,
+    SHIP_SKIN_ITEM,
     SHIPS_CONTAINER,
+    TIME_BASED_CONVERTIBLE_ITEM,
     TOP_PLAYERS_LETTER,
     USABLE_ITEM,
     ;

@@ -15,6 +15,7 @@ import java.util.Map;
  */
 public class Report {
     private static final double SALES_TAX = 0.05;
+    private static final double SHIP_RESALE_TAX = 0.10;
 
     private static double consumptionPrice(final double basePrice) {
         return (int) (basePrice * 1.5);
@@ -48,7 +49,7 @@ public class Report {
             // TODO: pick the right result :)
             final Requirement result = (Requirement) t.results.values().iterator().next();
             final ResourceTemplate<?> item = world.itemTemplate(result.template, ResourceTemplate.class);
-            final Need need = need(world, t, 1 / (double) result.amount);
+            final Need need = need(world, t, 1 / (double) result.amount, SALES_TAX);
             needs.put(result.template, need);
             System.out.format("| %-21s | %7.2f | %7.2f | %7.2f |  %8.2f | %8.2f | %8.2f | %8.2f |%n", t(t.name.substring(0, t.name.length() - " Blueprint".length()), 21), item.itemWeight, (double) t.goldRequirements, need.laborPrice, need.basePrice, need.priceIncTax, need.consumptionPrice, need.consumptionIncCCostPrice);
         });
@@ -65,7 +66,8 @@ public class Report {
 
             final Collection<Requirement> c = t.results.values();
             final Requirement result = c.stream().filter(r -> world.itemTemplatesById.get(r.template).type == ItemTemplateType.SHIP).findFirst().get();
-            final Need need = need(world, t, 1 / (double) result.amount);
+            final Need need = need(world, t, 1 / (double) result.amount, SHIP_RESALE_TAX);
+
             needs.put(result.template, need);
             System.out.format("| %-21s | %7.2f | %7.2f | %6d |  %9.2f | %9.2f | %9.2f | %9.2f |%n", t(t.name.substring(0, t.name.length() - " Blueprint".length()), 21), (double) t.goldRequirements, need.laborPrice, woodAmount, need.basePrice, need.priceIncTax, need.consumptionPrice, need.consumptionIncCCostPrice);
             //System.out.println(t.woodTypeDescs);
@@ -75,13 +77,15 @@ public class Report {
         export(needs);
     }
 
-    private static Need need(final World world, final AbstractRecipeTemplate<?> recipe, final double num) {
+    private static Need need(final World world, final AbstractRecipeTemplate<?> recipe, final double num, final double taxRate) {
         // you do not pay sales tax when you craft :)
         final double price = recipe.goldRequirements * num;
         final Need need = new Need(price, price, recipe.laborPrice * num, price, price);
         need.add(need(world, recipe.fullRequirements, num));
         // because the sales tax is added at the end
-        need.add(new Need(0, salesTax(need.priceIncTax), 0, 0, salesTax(need.consumptionIncCCostPrice)));
+        System.out.println("1: " + need);
+        need.add(new Need(0, tax(need.priceIncTax, taxRate), 0, 0, tax(need.consumptionIncCCostPrice, taxRate)));
+        System.out.println("2: " + need);
         return need;
     }
 
@@ -93,6 +97,7 @@ public class Report {
             //System.out.println((num * r.amount) + "x " + item.name + ": " + requirementNeed);
             need.add(requirementNeed);
         });
+        System.out.println("3: " + need);
         return need;
     }
 
@@ -104,7 +109,7 @@ public class Report {
             return need(world, (ResourceTemplate<?>) item, requirement.amount * num);
         } else if (subRecipe != null) {
             final double numCrafs = requirement.amount * num / (double) subRecipe.results.get(requirement.template).amount;
-            return need(world, subRecipe, numCrafs);
+            return need(world, subRecipe, numCrafs, SALES_TAX);
         }
         else if (item instanceof ResourceTemplate) {
             return need(world, (ResourceTemplate<?>) item, requirement.amount * num);
@@ -122,7 +127,7 @@ public class Report {
     }
 
     private static double salesTax(final double basePrice) {
-        return basePrice * SALES_TAX;
+        return tax(basePrice, SALES_TAX);
     }
 
     private static String t(final String s, final int maxLength) {
@@ -130,5 +135,9 @@ public class Report {
             return s.substring(0, maxLength - 2) + "..";
         }
         return s;
+    }
+
+    private static double tax(final double basePrice, final double taxRate) {
+        return basePrice * taxRate;
     }
 }

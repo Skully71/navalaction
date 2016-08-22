@@ -29,6 +29,6 @@ public class JsonRecipeResourceTemplateBuilder extends JsonItemTemplateBuilder {
             final Requirement result = JsonRequirementBuilder.create(r);
             results.put(result.template, result);
         });
-        return new RecipeResourceTemplate(obj.getInt("Id"), obj.getString("Name"), ItemTemplateType.find(obj.getString("__type")), obj.getInt("LaborPrice"), fullRequirements, obj.getInt("GoldRequirements"), results, obj);
+        return new RecipeResourceTemplate(obj.getInt("Id"), obj.getString("Name"), ItemTemplateType.find(obj.getString("__type")), obj.getInt("GivesXP"), obj.getInt("LaborPrice"), fullRequirements, obj.getInt("GoldRequirements"), results, obj);
     }
 }

@@ -39,6 +39,7 @@ public class RecipeCrafting {
         craftRequirements.addGoldRequirements(goldRequirements);
 
         int laborPrice = recipe.laborPrice;
+        System.out.println("\\ XP: " + recipe.givesXP);
         System.out.println("\\ Labor: " + laborPrice);
         craftRequirements.addLaborPrice(laborPrice);
 
@@ -52,13 +53,14 @@ public class RecipeCrafting {
     }
 
     public static void main(final String[] args) throws IOException {
-        final World world = JsonWorldBuilder.create("res/20160718");
+        final World world = JsonWorldBuilder.create("res/20160821");
         final RecipeShipTemplate itemTemplate = world.itemTemplates.values().stream()
                 .filter(t -> t.type == ItemTemplateType.RECIPE_SHIP && t.name.indexOf(args[0]) != -1)
                 .map(RecipeShipTemplate.class::cast)
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Can't find an item template for " + args[0]));
-        final CraftRequirements craftRequirements = craftShipRequirements(world, itemTemplate, false);
+        //System.out.println(world.itemTemplate(272, ItemTemplate.class).attachment); // Essex
+        final CraftRequirements craftRequirements = craftShipRequirements(world, itemTemplate, true);
         /*
         Stream.concat(itemTemplate.woodTypeDescs.get(WoodType.LIVE_OAK).requirements.stream(), itemTemplate.fullRequirements.stream())
                 .sorted((r1, r2) -> world.itemTemplatesById.get(r1.template).name.compareTo(world.itemTemplatesById.get(r2.template).name))

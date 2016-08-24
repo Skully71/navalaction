@@ -13,10 +13,11 @@ public class Port {
     public final String name;
     public final double x, y, z;
     public final int conquestFlagTimeSlot;
+    public final boolean capital;
     private final SortedSet<Point2D> destinations;
     private Shape sectorShape;
 
-    public Port(final int id, final String name, final double x, final double y, final double z, final int conquestFlagTimeSlot) {
+    public Port(final int id, final String name, final double x, final double y, final double z, final int conquestFlagTimeSlot, final boolean capital) {
         this.id = id;
         this.name = name;
 
@@ -25,6 +26,7 @@ public class Port {
         this.z = z;
 
         this.conquestFlagTimeSlot = conquestFlagTimeSlot;
+        this.capital = capital;
 
         this.destinations = new TreeSet<>((p1, p2) -> (int) (angleTo(p2) - angleTo(p1)));
     }
@@ -37,6 +39,10 @@ public class Port {
         double degrees = Math.toDegrees(Math.atan2(target.getY() - z, target.getX() - x));
         if (degrees < 0) degrees += 360;
         return degrees;
+    }
+
+    public String getName() {
+        return name;
     }
 
     Shape getSectorShape() {

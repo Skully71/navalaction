@@ -10,6 +10,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
+import static navalaction.pricing.Util.t;
+
 /**
  *
  */
@@ -77,15 +79,15 @@ public class Report {
         export(needs);
     }
 
-    private static Need need(final World world, final AbstractRecipeTemplate<?> recipe, final double num, final double taxRate) {
+    static Need need(final World world, final AbstractRecipeTemplate<?> recipe, final double num, final double taxRate) {
         // you do not pay sales tax when you craft :)
         final double price = recipe.goldRequirements * num;
         final Need need = new Need(price, price, recipe.laborPrice * num, price, price);
         need.add(need(world, recipe.fullRequirements, num));
         // because the sales tax is added at the end
-        System.out.println("1: " + need);
+//        System.out.println("1: " + need);
         need.add(new Need(0, tax(need.priceIncTax, taxRate), 0, 0, tax(need.consumptionIncCCostPrice, taxRate)));
-        System.out.println("2: " + need);
+//        System.out.println("2: " + need);
         return need;
     }
 
@@ -97,7 +99,7 @@ public class Report {
             //System.out.println((num * r.amount) + "x " + item.name + ": " + requirementNeed);
             need.add(requirementNeed);
         });
-        System.out.println("3: " + need);
+//        System.out.println("3: " + need);
         return need;
     }
 
@@ -128,13 +130,6 @@ public class Report {
 
     private static double salesTax(final double basePrice) {
         return tax(basePrice, SALES_TAX);
-    }
-
-    private static String t(final String s, final int maxLength) {
-        if (s.length() > maxLength) {
-            return s.substring(0, maxLength - 2) + "..";
-        }
-        return s;
     }
 
     private static double tax(final double basePrice, final double taxRate) {

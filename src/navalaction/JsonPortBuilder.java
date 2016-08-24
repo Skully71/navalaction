@@ -16,7 +16,7 @@ import java.util.Map;
 public class JsonPortBuilder {
     public static Port create(final JsonObject obj) {
         final JsonObject pos = obj.getJsonObject("Position");
-        return new Port(Integer.valueOf(obj.getString("Id")), obj.getString("Name"), pos.getJsonNumber("x").doubleValue(), pos.getJsonNumber("y").doubleValue(), pos.getJsonNumber("z").doubleValue(), obj.getInt("ConquestFlagTimeSlot"));
+        return new Port(Integer.valueOf(obj.getString("Id")), obj.getString("Name"), pos.getJsonNumber("x").doubleValue(), pos.getJsonNumber("y").doubleValue(), pos.getJsonNumber("z").doubleValue(), obj.getInt("ConquestFlagTimeSlot"), obj.getBoolean("Capital"));
     }
 
     public static Map<Integer, Port> read(final String portsFileName) throws IOException {

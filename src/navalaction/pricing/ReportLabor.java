@@ -21,9 +21,11 @@ public class ReportLabor {
         world.ports.values().stream().filter(p -> p.capital == true).sorted(Comparator.comparing(Port::getName)).forEach(port -> {
             final Shop shop = world.shops.get(port.id);
             System.out.println(port.name + ":");
-            System.out.println("+-----------------------+----------+----------+----------+----------+");
-            System.out.println("| Recipe                | Bid      | Bid(h)   | Ask      | Ask(h)   |");
-            System.out.println("+-----------------------+----------+----------+----------+----------+");
+            System.out.println("+---------------------------------------------+---------------------+---------------------+");
+            System.out.println("|                                             | Base Price          | Consumption Price   |");
+            System.out.println("+-----------------------+----------+----------+---------------------+---------------------+");
+            System.out.println("| Recipe                | Bid      | Ask      | Bid(h)   | Ask(h)   | Bid(h)   | Ask(h)   |");
+            System.out.println("+-----------------------+----------+----------+----------+----------+----------+----------+");
             world.itemTemplates.values().stream().filter(t -> t.type == ItemTemplateType.RECIPE).sorted(Comparator.comparing(ItemTemplate::getName)).map(RecipeResourceTemplate.class::cast).forEach(t -> {
                 // TODO: pick the right result :)
                 final Requirement result = (Requirement) t.results.values().iterator().next();
@@ -32,19 +34,43 @@ public class ReportLabor {
                 final RegularItem regularItem = shop.regularItems.get(item.id);
                 System.out.format("| %-21s | ", t(t.name.substring(0, t.name.length() - " Blueprint".length()), 21));
                 if (regularItem != null) {
+                    // Bid
                     if (regularItem.sellPrice > 0)
-                        System.out.format(" %7d |  %7.2f | ", regularItem.sellPrice, (regularItem.sellPrice - need.basePrice) / need.laborPrice);
+                        System.out.format(" %7d | ", regularItem.sellPrice);
                     else
-                        System.out.print("         |          | ");
+                        System.out.print("         | ");
+                    // Ask
                     if (regularItem.buyPrice > 0)
-                        System.out.format(" %7d |  %7.2f | ", regularItem.buyPrice, (regularItem.buyPrice - need.basePrice) / need.laborPrice);
+                        System.out.format(" %7d | ", regularItem.buyPrice);
                     else
-                        System.out.print("         |          | ");
+                        System.out.print("         | ");
+                    // basePrice
+                    // Bid(h) vs basePrice
+                    if (regularItem.sellPrice > 0)
+                        System.out.format(" %7.2f | ", (regularItem.sellPrice - need.basePrice) / need.laborPrice);
+                    else
+                        System.out.print("         | ");
+                    // Ask(h) vs basePrice
+                    if (regularItem.buyPrice > 0)
+                        System.out.format(" %7.2f | ", (regularItem.buyPrice - need.basePrice) / need.laborPrice);
+                    else
+                        System.out.print("         | ");
+                    // consumptionPrice
+                    // Bid(h) vs consumptionPrice
+                    if (regularItem.sellPrice > 0)
+                        System.out.format(" %7.2f | ", (regularItem.sellPrice - need.consumptionPrice) / need.laborPrice);
+                    else
+                        System.out.print("         | ");
+                    // Ask(h) vs consumptionPrice
+                    if (regularItem.buyPrice > 0)
+                        System.out.format(" %7.2f | ", (regularItem.buyPrice - need.consumptionPrice) / need.laborPrice);
+                    else
+                        System.out.print("         | ");
                 } else
-                    System.out.print("         |          |          |          | ");
+                    System.out.print("         |          |          |          |          |          |");
                 System.out.println();
             });
-            System.out.println("+-----------------------+----------+----------+----------+----------+");
+            System.out.println("+-----------------------+----------+----------+----------+----------+----------+----------+");
             System.out.println();
         });
     }

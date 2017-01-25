@@ -30,17 +30,17 @@ public class Report {
 
     public static void main(final String[] args) throws IOException {
         final Map<Integer, Need> needs = new HashMap<>();
-        final World world = JsonWorldBuilder.create("res/20160819");
-        System.out.println("+-----------------------+---------+---------+---------+---------+---------+---------+");
-        System.out.println("| Resource              | Weight  | Price   | Tax     | Total   | Consump | C&C Cst |");
-        System.out.println("+-----------------------+---------+---------+---------+---------+---------+---------+");
+        final World world = JsonWorldBuilder.create("res/20170125");
+        System.out.println("+-----------------------+---------+-----------+-----------+-----------+-----------+-----------+");
+        System.out.println("| Resource              | Weight  | Price     | Tax       | Total     | Consump   | C&C Cst   |");
+        System.out.println("+-----------------------+---------+-----------+-----------+-----------+-----------+-----------+");
         world.itemTemplates.values().stream().filter(t -> t.type == ItemTemplateType.RESOURCE).sorted(Comparator.comparing(ItemTemplate::getName)).map(ResourceTemplate.class::cast).forEach(t -> {
             final double tax = salesTax(t.basePrice);
             final Need need = new Need(t.basePrice, t.basePrice + tax, 0, consumptionPrice(t.basePrice), priceIncSalesTax(consumptionPrice(t.basePrice)));
             needs.put(t.id, need);
-            System.out.format("| %-21s | %7.2f | %7.2f | %7.2f | %7.2f | %7.2f | %7.2f |%n", t(t.name, 21), t.itemWeight, (double) t.basePrice, tax, t.basePrice + tax, need.consumptionPrice, need.consumptionIncCCostPrice);
+            System.out.format("| %-21s | %7.2f | %9.2f | %9.2f | %9.2f | %9.2f | %9.2f |%n", t(t.name, 21), t.itemWeight, (double) t.basePrice, tax, t.basePrice + tax, need.consumptionPrice, need.consumptionIncCCostPrice);
         });
-        System.out.println("+-----------------------+---------+---------+---------+---------+---------+---------+");
+        System.out.println("+-----------------------+---------+-----------+-----------+-----------+-----------+-----------+");
         System.out.println();
         System.out.println("+-----------------------+---------+---------+---------+-----------+----------+----------+----------+");
         System.out.println("| Recipe                | Weight  | Craft   | Labor   | Resources | Res+Tax  | Consump  | C&C Cost | ");

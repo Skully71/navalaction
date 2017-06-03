@@ -4,12 +4,16 @@ import navalaction.JsonPortBuilder;
 import navalaction.Port;
 import navalaction.json.JsonItemTemplateBuilder;
 import navalaction.json.JsonShopBuilder;
-import navalaction.model.*;
+import navalaction.json.JsonWorldBuilder;
+import navalaction.json.JsonWorldBuilder;
+import navalaction.model.ItemTemplate;
+import navalaction.model.ItemTemplateType;
+import navalaction.model.Shop;
+import navalaction.model.World;
 
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -17,11 +21,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class GlobalMarketAnalysis {
     public static void main(final String[] args) throws IOException {
-        final Map<Integer, ItemTemplate> itemTemplates = JsonItemTemplateBuilder.read("res/20160711/ItemTemplates_cleanopenworldprodeu1.json");
-        final Map<Integer, Port> ports = JsonPortBuilder.read("res/20160711/Ports_cleanopenworldprodeu1.json");
-        final Map<Integer, Shop> shops = JsonShopBuilder.read("res/20160711/Shops_cleanopenworldprodeu1.json");
-        final World world = new World(itemTemplates, ports, shops);
+        final World world = JsonWorldBuilder.create("res/20160821");
+        final Map<Integer, Shop> shops = world.shops;
 
+        /*
         {
             final Port barataria = world.portsByName.get("Barataria");
             final Shop shop = world.shops.get(barataria.id);
@@ -34,6 +37,7 @@ public class GlobalMarketAnalysis {
                         System.out.println(template + " " + i);
                     });
         }
+        */
         /*
         shop.regularItems.values().forEach(i -> {
             System.out.println(itemTemplates.get(i.templateId).name);
@@ -75,6 +79,20 @@ public class GlobalMarketAnalysis {
         world.itemTemplates.values().stream().filter(i -> i.type == ItemTemplateType.MATERIAL || i.type == ItemTemplateType.RESOURCE).sorted(Comparator.comparing(ItemTemplate::getName)).forEach(i -> {
             System.out.println(i.name);
             report(world, i);
+        });
+
+//        world.itemTemplates.values().stream().filter(i -> i.type == ItemTemplateType.MODULE).sorted(Comparator.comparing(ItemTemplate::getName)).map(ItemTemplate::getName).distinct().forEach(i -> {
+//            System.out.println(i);
+//        });
+        world.itemTemplates.values().stream().sorted(Comparator.comparing(ItemTemplate::getName)).filter(t -> (t.type == ItemTemplateType.RECIPE_SHIP)).forEach(t -> {
+            System.out.println(t);
+            /*
+            if (t.items != null) {
+                t.items.stream().sorted((i1, i2) -> world.itemTemplatesById.get(i1.template).name.compareTo(world.itemTemplatesById.get(i2.template).name)).forEach(i -> {
+                    System.out.println("  " + world.itemTemplatesById.get(i.template).name + ": " + i.chance);
+                });
+            }
+            */
         });
     }
 

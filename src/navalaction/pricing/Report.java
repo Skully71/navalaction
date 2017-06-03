@@ -30,7 +30,7 @@ public class Report {
 
     public static void main(final String[] args) throws IOException {
         final Map<Integer, Need> needs = new HashMap<>();
-        final World world = JsonWorldBuilder.create("res/20170125");
+        final World world = JsonWorldBuilder.create("res/20170527");
         System.out.println("+-----------------------+---------+-----------+-----------+-----------+-----------+-----------+");
         System.out.println("| Resource              | Weight  | Price     | Tax       | Total     | Consump   | C&C Cst   |");
         System.out.println("+-----------------------+---------+-----------+-----------+-----------+-----------+-----------+");
@@ -47,13 +47,16 @@ public class Report {
         System.out.println("+-----------------------+---------+---------+---------+-----------+----------+----------+----------+");
         world.itemTemplates.values().stream().filter(t -> t.type == ItemTemplateType.RECIPE).sorted(Comparator.comparing(ItemTemplate::getName)).map(RecipeResourceTemplate.class::cast).forEach(t -> {
 //        world.itemTemplates.values().stream().filter(t -> t.type == ItemTemplateType.RECIPE && t.name.startsWith("Knees")).sorted(Comparator.comparing(ItemTemplate::getName)).map(RecipeResourceTemplate.class::cast).forEach(t -> {
-            //System.out.println(t.results.values().iterator().next());
+            System.out.println(t + ": " + t.results.values());
             // TODO: pick the right result :)
             final Requirement result = (Requirement) t.results.values().iterator().next();
-            final ResourceTemplate<?> item = world.itemTemplate(result.template, ResourceTemplate.class);
-            final Need need = need(world, t, 1 / (double) result.amount, SALES_TAX);
-            needs.put(result.template, need);
-            System.out.format("| %-21s | %7.2f | %7.2f | %7.2f |  %8.2f | %8.2f | %8.2f | %8.2f |%n", t(t.name.substring(0, t.name.length() - " Blueprint".length()), 21), item.itemWeight, (double) t.goldRequirements, need.laborPrice, need.basePrice, need.priceIncTax, need.consumptionPrice, need.consumptionIncCCostPrice);
+            // dirty hack to skip weird recipes
+            if (world.itemTemplates.get(result.template) instanceof ResourceTemplate) {
+                final ResourceTemplate<?> item = world.itemTemplate(result.template, ResourceTemplate.class);
+                final Need need = need(world, t, 1 / (double) result.amount, SALES_TAX);
+                needs.put(result.template, need);
+                System.out.format("| %-21s | %7.2f | %7.2f | %7.2f |  %8.2f | %8.2f | %8.2f | %8.2f |%n", t(t.name.substring(0, t.name.length() - " Blueprint".length()), 21), item.itemWeight, (double) t.goldRequirements, need.laborPrice, need.basePrice, need.priceIncTax, need.consumptionPrice, need.consumptionIncCCostPrice);
+            }
         });
         System.out.println("+-----------------------+---------+---------+---------+-----------+----------+----------+----------+");
         System.out.println();
@@ -92,6 +95,7 @@ public class Report {
     }
 
     private static Need need(final World world, final Collection<Requirement> requirements, final double num) {
+        System.out.println("  " + requirements);
         final Need need = new Need(0, 0, 0, 0, 0);
         requirements.stream().forEach(r -> {
             final ItemTemplate<?> item = world.itemTemplatesById.get(r.template);

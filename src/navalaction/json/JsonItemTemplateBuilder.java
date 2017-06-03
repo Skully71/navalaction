@@ -4,10 +4,7 @@ import navalaction.model.Item;
 import navalaction.model.ItemTemplate;
 import navalaction.model.ItemTemplateType;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
+import javax.json.*;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -33,6 +30,7 @@ public class JsonItemTemplateBuilder implements Function<JsonObject, ItemTemplat
         }
         // TODO: there is more
         Collection<Item> items = null;
+        /* This piece only applies to Loot
         final JsonArray itemsArray = obj.getJsonArray("Items");
         if (itemsArray != null) {
             items = new HashSet<>();
@@ -41,13 +39,16 @@ public class JsonItemTemplateBuilder implements Function<JsonObject, ItemTemplat
                 c.add(createItem(i));
             });
         }
+        */
         //if (obj.getString("Name").equals("Iron Ore")) System.out.println(obj);
         //if (obj.getInt("Id") == 2) System.out.println(obj);
         return new ItemTemplate<>(obj.getInt("Id"), obj.getString("Name"), ItemTemplateType.find(obj.getString("__type")), items, obj);
     }
 
     private static Item createItem(final JsonObject obj) {
-        return new Item(obj.getInt("Template"), obj.getJsonNumber("Chance").doubleValue());
+        final JsonNumber template = obj.getJsonNumber("Template");
+        if (template == null) throw new IllegalStateException("No Template on " + obj);
+        return new Item(template.intValue(), obj.getJsonNumber("Chance").doubleValue());
     }
 
     static int id(final JsonObject obj) {

@@ -30,7 +30,7 @@ public class Report {
 
     public static void main(final String[] args) throws IOException {
         final Map<Integer, Need> needs = new HashMap<>();
-        final World world = JsonWorldBuilder.create("res/20170527");
+        final World world = JsonWorldBuilder.create("src/main/resources/20170527");
         System.out.println("+-----------------------+---------+-----------+-----------+-----------+-----------+-----------+");
         System.out.println("| Resource              | Weight  | Price     | Tax       | Total     | Consump   | C&C Cst   |");
         System.out.println("+-----------------------+---------+-----------+-----------+-----------+-----------+-----------+");

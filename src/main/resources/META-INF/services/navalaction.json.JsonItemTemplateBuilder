@@ -2,6 +2,7 @@ navalaction.json.JsonCrewRepairItemTemplateBuilder
 navalaction.json.JsonShipRepairItemTemplateBuilder
 navalaction.json.JsonMaterialTemplateBuilder
 navalaction.json.JsonRecipeResourceTemplateBuilder
+navalaction.json.JsonRecipeModuleTemplateBuilder
 navalaction.json.JsonRecipeTemplateBuilder
 navalaction.json.JsonRecipeShipTemplateBuilder
 navalaction.json.JsonResourceTemplateBuilder

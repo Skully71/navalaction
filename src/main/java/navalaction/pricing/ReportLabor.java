@@ -30,7 +30,7 @@ public class ReportLabor {
                 // TODO: pick the right result :)
                 final Requirement result = (Requirement) t.results.values().iterator().next();
                 final ResourceTemplate<?> item = world.itemTemplate(result.template, ResourceTemplate.class);
-                final Need need = need(world, t, 1 / (double) result.amount, 0.0f);
+                final Need need = need(world, t, 1 / (double) result.amount, 0.0f, false);
                 final RegularItem regularItem = shop.regularItems.get(item.id);
                 System.out.format("| %-21s | ", t(t.name.substring(0, t.name.length() - " Blueprint".length()), 21));
                 if (regularItem != null) {

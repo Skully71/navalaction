@@ -1,7 +1,8 @@
 #!/bin/sh
 set -e -x
 URL=http://storage.googleapis.com/nacleanopenworldprodshards/
-SHARD=cleanopenworldprodeu1
+#SHARD=cleanopenworldprodeu1
+SHARD=cleanopenworldprodus2
 DATE=`date +"%Y%m%d"`
 echo $DATE
 mkdir $DATE || true

@@ -16,11 +16,12 @@ import static navalaction.pricing.Util.t;
  *
  */
 public class Report {
-    private static final double SALES_TAX = 0.05;
+    private static final int EURO_TRADER = 3;
+    private static final double SALES_TAX = 0.10;
     private static final double SHIP_RESALE_TAX = 0.10;
 
     private static double consumptionPrice(final double basePrice) {
-        return (int) (basePrice * 1.5);
+        return (int) (basePrice * EURO_TRADER);
     }
 
     private static void export(final Map<Integer, Need> needs) {
@@ -30,7 +31,7 @@ public class Report {
 
     public static void main(final String[] args) throws IOException {
         final Map<Integer, Need> needs = new HashMap<>();
-        final World world = JsonWorldBuilder.create("src/main/resources/20170630");
+        final World world = JsonWorldBuilder.create("src/main/resources/20170915", "us2");
         world.itemTemplates.values().stream().forEach(t -> {
             //if (t.name.contains("Saltpeter")) System.out.println(t);
             // 805 Indian Saltpeter
@@ -157,45 +158,48 @@ public class Report {
     }
 
     private static void reportMaterials(final World world, final Map<Integer, Need> needs) {
-        System.out.println("+-----------------------+---------+-----------+-----------+");
-        System.out.println("| Material              | Weight  | Resources | Labor     |");
-        System.out.println("+-----------------------+---------+-----------+-----------+");
+        System.out.println("+-----------------------+---------+-----------+-----------+-----------+");
+        System.out.println("| Material              | Weight  | Resources | Labor     | Res + Tax |");
+        System.out.println("+-----------------------+---------+-----------+-----------+-----------+");
         world.itemTemplates.values().stream().filter(t -> t.type == ItemTemplateType.RECIPE).sorted(Comparator.comparing(ItemTemplate::getName)).map(RecipeResourceTemplate.class::cast).forEach(t -> {
             //System.out.println(t.attachment);
             final Requirement result = (Requirement) t.results.values().iterator().next();
             //System.out.println(t + " -> " + result);
             if (world.itemTemplates.get(result.template) instanceof ResourceTemplate) {
                 final ResourceTemplate item = world.itemTemplate(result.template, ResourceTemplate.class);
-                final Need need = need(world, t, 1 / (double) result.amount, SALES_TAX, true);
+                final Need need = need(world, t, 1 / (double) result.amount, SALES_TAX, false);
                 needs.put(result.template, need);
                 //final double craft = t.goldRequirements / (double) result.amount;
                 //final double labor = t.laborPrice / (double) result.amount;
-                final double resources = need.basePrice;
+                final double resources = need.consumptionIncCCostPrice;
                 final double labor = need.laborPrice;
-                System.out.format("| %-21s | %7.2f | %9.2f | %9.2f |%n", t(item.name, 21), item.itemWeight, resources, labor);
+                final double total = resources + salesTax(resources);
+                System.out.format("| %-21s | %7.2f | %9.2f | %9.2f | %9.2f |%n", t(item.name, 21), item.itemWeight, resources, labor, total);
             }
         });
-        System.out.println("+-----------------------+---------+-----------+-----------+");
+        System.out.println("+-----------------------+---------+-----------+-----------+-----------+");
     }
 
     private static void reportResources(final World world, final Map<Integer, Need> needs) {
-        System.out.println("+-----------------------+---------+-----------+-----------+");
-        System.out.println("| Resource              | Weight  | Craft     | Labor     |");
-        System.out.println("+-----------------------+---------+-----------+-----------+");
+        System.out.println("+-----------------------+---------+-----------+-----------+-----------+-----------+");
+        System.out.println("| Resource              | Weight  | EU Price  | Craft     | Labor     | EU + Tax  |");
+        System.out.println("+-----------------------+---------+-----------+-----------+-----------+-----------+");
         world.itemTemplates.values().stream().filter(t -> t.type == ItemTemplateType.RECIPE_RESOURCE).sorted(Comparator.comparing(ItemTemplate::getName)).map(RecipeResourceTemplate.class::cast).forEach(t -> {
             //System.out.println(t.attachment);
             final Requirement result = (Requirement) t.results.values().iterator().next();
             //System.out.println(t + " -> " + result);
             final ResourceTemplate item = world.itemTemplate(result.template, ResourceTemplate.class);
+//            final double price = item.basePrice * EURO_TRADER;
             final double craft = t.goldRequirements / (double) result.amount;
             final double labor = t.laborPrice / (double) result.amount;
-            System.out.format("| %-21s | %7.2f | %9.2f | %9.2f |%n", t(item.name, 21), item.itemWeight, craft, labor);
-//            final double tax = salesTax(t.basePrice);
-//            final Need need = new Need(t.basePrice, t.basePrice + tax, 0, consumptionPrice(t.basePrice), priceIncSalesTax(consumptionPrice(t.basePrice)));
-//            needs.put(t.id, need);
-//            System.out.format("| %-21s | %7.2f | %9.2f | %9.2f | %9.2f | %9.2f | %9.2f |%n", t(t.name, 21), t.itemWeight, (double) t.basePrice, tax, t.basePrice + tax, need.consumptionPrice, need.consumptionIncCCostPrice);
+//            System.out.format("| %-21s | %7.2f | %9.2f | %9.2f | %9.2f |%n", t(item.name, 21), item.itemWeight, price, craft, labor);
+            final double tax = salesTax(item.basePrice);
+            final Need need = new Need(item.basePrice, item.basePrice + tax, t.laborPrice, consumptionPrice(item.basePrice), priceIncSalesTax(consumptionPrice(item.basePrice)));
+            needs.put(t.id, need);
+            //System.out.format("| %-21s | %7.2f | %9.2f | %9.2f | %9.2f | %9.2f | %9.2f |%n", t(t.name, 21), item.itemWeight, (double) item.basePrice, tax, item.basePrice + tax, need.consumptionPrice, need.consumptionIncCCostPrice);
+            System.out.format("| %-21s | %7.2f | %9.2f | %9.2f | %9.2f | %9.2f |%n", t(t.name, 21), item.itemWeight, need.consumptionPrice, craft, labor, need.consumptionIncCCostPrice);
         });
-        System.out.println("+-----------------------+---------+-----------+-----------+");
+        System.out.println("+-----------------------+---------+-----------+-----------+-----------+-----------+");
     }
 
     private static double salesTax(final double basePrice) {

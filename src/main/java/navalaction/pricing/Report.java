@@ -16,7 +16,7 @@ import static navalaction.pricing.Util.t;
  *
  */
 public class Report {
-    private static final int EURO_TRADER = 3;
+    private static final int EURO_TRADER = 4;
     private static final double SALES_TAX = 0.10;
     private static final double SHIP_RESALE_TAX = 0.10;
 
@@ -33,7 +33,7 @@ public class Report {
         final Map<Integer, Need> needs = new HashMap<>();
         final World world = JsonWorldBuilder.create("src/main/resources/20170915", "us2");
         world.itemTemplates.values().stream().forEach(t -> {
-            //if (t.name.contains("Saltpeter")) System.out.println(t);
+            if (t.name.contains("Cannon")) System.out.println(t);
             // 805 Indian Saltpeter
             // 864 Saltpeter
             if (t.type == ItemTemplateType.RECIPE || t.type == ItemTemplateType.RECIPE_MODULE || t.type == ItemTemplateType.RECIPE_RESOURCE || t.type == ItemTemplateType.RECIPE_SHIP) {
@@ -184,7 +184,7 @@ public class Report {
         System.out.println("+-----------------------+---------+-----------+-----------+-----------+-----------+");
         System.out.println("| Resource              | Weight  | EU Price  | Craft     | Labor     | EU + Tax  |");
         System.out.println("+-----------------------+---------+-----------+-----------+-----------+-----------+");
-        world.itemTemplates.values().stream().filter(t -> t.type == ItemTemplateType.RECIPE_RESOURCE).sorted(Comparator.comparing(ItemTemplate::getName)).map(RecipeResourceTemplate.class::cast).forEach(t -> {
+        final double avgHourRate = world.itemTemplates.values().stream().filter(t -> t.type == ItemTemplateType.RECIPE_RESOURCE).sorted(Comparator.comparing(ItemTemplate::getName)).map(RecipeResourceTemplate.class::cast).mapToDouble(t -> {
             //System.out.println(t.attachment);
             final Requirement result = (Requirement) t.results.values().iterator().next();
             //System.out.println(t + " -> " + result);
@@ -197,9 +197,12 @@ public class Report {
             final Need need = new Need(item.basePrice, item.basePrice + tax, t.laborPrice, consumptionPrice(item.basePrice), priceIncSalesTax(consumptionPrice(item.basePrice)));
             needs.put(t.id, need);
             //System.out.format("| %-21s | %7.2f | %9.2f | %9.2f | %9.2f | %9.2f | %9.2f |%n", t(t.name, 21), item.itemWeight, (double) item.basePrice, tax, item.basePrice + tax, need.consumptionPrice, need.consumptionIncCCostPrice);
-            System.out.format("| %-21s | %7.2f | %9.2f | %9.2f | %9.2f | %9.2f |%n", t(t.name, 21), item.itemWeight, need.consumptionPrice, craft, labor, need.consumptionIncCCostPrice);
-        });
+            final double hourRate = (need.consumptionPrice - craft) / labor;
+            System.out.format("| %-21s | %7.2f | %9.2f | %9.2f | %9.2f | %9.2f | %9.2f |%n", t(t.name, 21), item.itemWeight, need.consumptionPrice, craft, labor, need.consumptionIncCCostPrice, hourRate);
+            return hourRate;
+        }).average().getAsDouble();
         System.out.println("+-----------------------+---------+-----------+-----------+-----------+-----------+");
+        System.out.format("Average hour rate: %1.2f%n", avgHourRate);
     }
 
     private static double salesTax(final double basePrice) {
